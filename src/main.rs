@@ -1,5 +1,5 @@
 use chrono::{Datelike, Local};
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{fs::write, path::PathBuf};
 
 // TODO: Optimize chrono crate, so that less dependencies are pulled.
 
@@ -15,15 +15,14 @@ fn main() -> std::io::Result<()> {
     // use PathBuf instead of plain format!. Maybe this is the better way?
     let note_path = PathBuf::from("/home/shaka/Documents/notes/毎日/").join(&note_today);
 
-    let mut file = File::create(note_path)?;
-
     // Look if the `%Z` can be configured to show the timezone in string like "IST"
     // as compared to numeric like "05:30"
 
     let formatted_date = now.format("%a %b %d %I:%M:%S %p %Z %Y").to_string();
 
     let contents = format!("# {} \n\n ## Intentions \n\n ## Logs \n\n", formatted_date);
-    file.write_all(contents.as_bytes())?;
+
+    write(&note_path, contents)?;
 
     Ok(())
 }
