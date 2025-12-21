@@ -1,11 +1,17 @@
 use chrono::{Datelike, Local};
 use std::{
     fs::write,
-    path::PathBuf,
     process::{Command, exit},
 };
 
 // TODO: Optimize chrono crate, so that less dependencies are pulled.
+
+fn exec_neovim(note_path: &str) {
+    Command::new("nvim")
+        .arg(note_path)
+        .status()
+        .expect("failed to execute neovim.");
+}
 
 fn main() -> std::io::Result<()> {
     let now = Local::now();
@@ -14,13 +20,11 @@ fn main() -> std::io::Result<()> {
     let month = now.month();
     let day = now.day();
 
-    let note_today = format!("{year}-{month}-{day}.md");
-
-    // use PathBuf instead of plain format!. Maybe this is the better way?
-    let note_path = PathBuf::from("/home/shaka/Documents/notes/毎日/").join(note_today);
+    let note_path = format!("/home/shaka/Documents/notes/毎日/{year}-{month}-{day}.md");
 
     // Exit if the file already exists, avoid overwriting it.
     if std::fs::exists(&note_path).unwrap() {
+        exec_neovim(&note_path);
         exit(1)
     }
 
@@ -32,11 +36,7 @@ fn main() -> std::io::Result<()> {
 
     write(&note_path, contents)?;
 
-    // Command::new("nvim")
-    //     .arg("--")
-    //     .arg(&note_path)
-    //     .spawn()
-    //     .expect("Error: Failed to execute neovim");
+    exec_neovim(&note_path);
 
     Ok(())
 }
