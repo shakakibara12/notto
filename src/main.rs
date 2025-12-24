@@ -1,6 +1,6 @@
 use chrono::{Datelike, Local};
 use std::{
-    fs::write,
+    fs, io,
     process::{Command, exit},
 };
 
@@ -8,12 +8,13 @@ use std::{
 
 fn exec_neovim(note_path: &str) {
     Command::new("nvim")
+        .arg("--")
         .arg(note_path)
         .status()
         .expect("failed to execute neovim.");
 }
 
-fn main() -> std::io::Result<()> {
+fn main() -> io::Result<()> {
     let now = Local::now();
 
     let year = now.year();
@@ -23,7 +24,7 @@ fn main() -> std::io::Result<()> {
     let note_path = format!("/home/shaka/Documents/notes/毎日/{year}-{month}-{day}.md");
 
     // Exit if the file already exists, avoid overwriting it.
-    if std::fs::exists(&note_path).unwrap() {
+    if fs::exists(&note_path).unwrap() {
         exec_neovim(&note_path);
         exit(1)
     }
@@ -34,7 +35,7 @@ fn main() -> std::io::Result<()> {
 
     let contents = format!("# {} \n\n ## Intentions \n\n ## Logs \n\n", formatted_date);
 
-    write(&note_path, contents)?;
+    fs::write(&note_path, contents)?;
 
     exec_neovim(&note_path);
 
