@@ -4,8 +4,6 @@ use std::{
     process::{Command, exit},
 };
 
-// TODO: Optimize chrono crate, so that less dependencies are pulled.
-
 fn exec_neovim(note_path: &str) {
     Command::new("nvim")
         .arg("--")
@@ -13,6 +11,8 @@ fn exec_neovim(note_path: &str) {
         .status()
         .expect("failed to execute neovim.");
 }
+
+// TODO: Refactor note_path to another function, lifting more heavy lifting from main function.
 
 fn main() -> io::Result<()> {
     let now = Local::now();
