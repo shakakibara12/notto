@@ -1,4 +1,4 @@
-use chrono::{Datelike, Local};
+use chrono::{DateTime, Datelike, Local};
 use std::{
     fs, io,
     process::{Command, exit},
@@ -13,15 +13,19 @@ fn exec_neovim(note_path: &str) {
 }
 
 // TODO: Refactor note_path to another function, lifting more heavy lifting from main function.
-
-fn main() -> io::Result<()> {
-    let now = Local::now();
-
+fn note_path(now: &DateTime<Local>) -> String {
     let year = now.year();
     let month = now.month();
     let day = now.day();
 
     let note_path = format!("/home/shaka/Documents/notes/毎日/{year}-{month}-{day}.md");
+    note_path
+}
+
+fn main() -> io::Result<()> {
+    let now = Local::now();
+
+    let note_path = note_path(&now);
 
     // Exit if the file already exists, avoid overwriting it.
     if fs::exists(&note_path).unwrap() {
