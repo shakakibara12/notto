@@ -1,11 +1,19 @@
 use chrono::{Duration, Local};
 use std::{
     env, fs, io,
+    path::PathBuf,
     process::{Command, exit},
 };
 
+const NOTES_DIR: &str = "Documents/notes/毎日";
+
+fn get_editor() -> String {
+    env::var("EDITOR").unwrap_or_else(|_| "nvim".to_string())
+}
+
 fn exec_neovim(note_path: &str) {
-    Command::new("nvim")
+    let editor = get_editor();
+    Command::new(editor)
         .arg("--")
         .arg(&note_path)
         .status()
@@ -51,11 +59,13 @@ fn today() -> String {
     note_path
 }
 
-fn default_content(note_path: &str) -> Result<(), io::Error> {
+fn default_template(note_path: &str) -> Result<(), io::Error> {
     let now = Local::now();
 
     // Look if the `%Z` can be configured to show the timezone in string like "IST"
     // as compared to numeric like "05:30"
+    // Looks like a lot of mess to implement that. See: https://github.com/chronotope/chrono/issues/960
+    // ignoring.
     let formatted_date = now.format("%a %b %d %I:%M:%S %p %Z %Y").to_string();
 
     let contents = format!("# {} \n\n## Intentions \n\n## Logs \n\n", formatted_date);
@@ -77,7 +87,7 @@ fn main() {
         exit(1)
     }
 
-    default_content(&note_path).expect("Couldn't write the default content!");
+    default_template(&note_path).expect("Couldn't write the default content!");
 
     exec_neovim(&note_path);
 }
