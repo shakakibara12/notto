@@ -51,7 +51,21 @@ fn today() -> String {
     note_path
 }
 
-fn main() -> io::Result<()> {
+fn default_content(note_path: &str) -> Result<(), io::Error> {
+    let now = Local::now();
+
+    // Look if the `%Z` can be configured to show the timezone in string like "IST"
+    // as compared to numeric like "05:30"
+    let formatted_date = now.format("%a %b %d %I:%M:%S %p %Z %Y").to_string();
+
+    let contents = format!("# {} \n\n## Intentions \n\n## Logs \n\n", formatted_date);
+
+    fs::write(&note_path, contents)?;
+
+    Ok(())
+}
+
+fn main() {
     // Parse cli
     let args: Vec<String> = env::args().collect();
 
@@ -63,18 +77,9 @@ fn main() -> io::Result<()> {
         exit(1)
     }
 
-    // Look if the `%Z` can be configured to show the timezone in string like "IST"
-    // as compared to numeric like "05:30"
-    let now = Local::now();
-    let formatted_date = now.format("%a %b %d %I:%M:%S %p %Z %Y").to_string();
-
-    let contents = format!("# {} \n\n## Intentions \n\n## Logs \n\n", formatted_date);
-
-    fs::write(&note_path, contents)?;
+    default_content(&note_path).expect("Couldn't write the default content!");
 
     exec_neovim(&note_path);
-
-    Ok(())
 }
 
 #[cfg(test)]
