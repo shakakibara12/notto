@@ -20,11 +20,16 @@ fn exec_neovim(note_path: &str) {
         .expect("failed to execute neovim.");
 }
 
-fn parse_cli(args: &Vec<String>) -> String {
-    let arg = &args[1];
-    let file = match arg.as_str() {
-        "-n" => next_day(),
-        "-p" => prev_day(),
+fn help() -> String {
+    "-n: to open the note in next day \n -p: to open note in previous day \n -h: to show this menu"
+        .to_string()
+}
+
+fn parse_cli(args: &[String]) -> String {
+    let file = match args.get(1).map(|s| s.as_str()) {
+        Some("-n") => next_day(),
+        Some("-p") => prev_day(),
+        Some("-h") => help(),
         // If no matches found, continue to open today's note.
         _ => today(),
     };
