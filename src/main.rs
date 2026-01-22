@@ -5,10 +5,15 @@ use std::{
     process::{Command, exit},
 };
 
-const NOTES_DIR: &str = "Documents/notes/毎日";
+const DEFAULT_DIR: &str = "Documents/notes/毎日";
 
 fn get_editor() -> String {
     env::var("EDITOR").unwrap_or_else(|_| "nvim".to_string())
+}
+
+fn get_default_dir() -> PathBuf {
+    let home = env::var("HOME").expect("Couldn't read HOME env");
+    PathBuf::from(home).join(DEFAULT_DIR)
 }
 
 fn exec_neovim(note_path: &str) {
@@ -27,40 +32,21 @@ fn help() -> String {
 
 fn parse_cli(args: &[String]) -> String {
     let file = match args.get(1).map(|s| s.as_str()) {
-        Some("-n") => next_day(),
-        Some("-p") => prev_day(),
+        Some("-n") => set_day(1),
+        Some("-p") => set_day(-1),
         Some("-h") => help(),
         // If no matches found, continue to open today's note.
-        _ => today(),
+        _ => set_day(0),
     };
     file
 }
 
-// This will just return the next day's data format, eg, 2026-1-16.md . If today is 15
-fn next_day() -> String {
+fn set_day(num: i64) -> String {
     let now = Local::now();
-    let next_day = now + Duration::days(1);
+    let next_day = now + Duration::days(num);
     let next_day = next_day.format("%Y-%m-%d").to_string();
 
     let note_path = format!("/home/shaka/Documents/notes/毎日/{next_day}.md");
-    note_path
-}
-
-// See next_day()
-fn prev_day() -> String {
-    let now = Local::now();
-    let prev_day = now - Duration::days(1);
-    let prev_day = prev_day.format("%Y-%m-%d").to_string();
-
-    let note_path = format!("/home/shaka/Documents/notes/毎日/{prev_day}.md");
-    note_path
-}
-
-fn today() -> String {
-    let now = Local::now();
-    let today = now.format("%Y-%m-%d").to_string();
-
-    let note_path = format!("/home/shaka/Documents/notes/毎日/{today}.md");
     note_path
 }
 
@@ -95,15 +81,4 @@ fn main() {
     default_template(&note_path).expect("Couldn't write the default content!");
 
     exec_neovim(&note_path);
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_next_day() {
-        let now = Local::now() + Duration::days(1);
-        assert_eq!(now.format("%Y-%m-%d").to_string(), next_day())
-    }
 }
