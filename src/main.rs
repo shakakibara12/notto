@@ -24,14 +24,13 @@ fn help() -> String {
 }
 
 fn parse_cli(args: &[String]) -> String {
-    let file = match args.get(1).map(|s| s.as_str()) {
+    match args.get(1).map(|s| s.as_str()) {
         Some("-n") => set_day(1),
         Some("-p") => set_day(-1),
         Some("-h") => help(),
         // If no matches found, continue to open today's note.
         _ => set_day(0),
-    };
-    file
+    }
 }
 
 fn set_day(num: i64) -> String {
