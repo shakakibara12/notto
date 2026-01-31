@@ -1,19 +1,12 @@
 use chrono::{Duration, Local};
+use notto::Note;
 use std::{
     env, fs, io,
-    path::PathBuf,
     process::{Command, exit},
 };
 
-const DEFAULT_DIR: &str = "Documents/notes/毎日";
-
 fn get_editor() -> String {
     env::var("EDITOR").unwrap_or_else(|_| "nvim".to_string())
-}
-
-fn get_default_dir() -> PathBuf {
-    let home = env::var("HOME").expect("Couldn't read HOME env");
-    PathBuf::from(home).join(DEFAULT_DIR)
 }
 
 fn exec_neovim(note_path: &str) {
@@ -43,20 +36,19 @@ fn parse_cli(args: &[String]) -> String {
 
 fn set_day(num: i64) -> String {
     let now = Local::now();
-    let next_day = now + Duration::days(num);
-    let next_day = next_day.format("%Y-%m-%d").to_string();
+    let actual_day = now + Duration::days(num);
+    let actual_day = actual_day.format("%Y-%m-%d.md").to_string();
 
-    let note_path = format!("/home/shaka/Documents/notes/毎日/{next_day}.md");
-    note_path
+    // I know this looks really bad.
+    // Refactor: THIS . my future me
+    let mut note = Note::new();
+    note.path.push(actual_day);
+    note.path.to_str().unwrap().to_string()
 }
 
 fn default_template(note_path: &str) -> Result<(), io::Error> {
     let now = Local::now();
 
-    // Look if the `%Z` can be configured to show the timezone in string like "IST"
-    // as compared to numeric like "05:30"
-    // Looks like a lot of mess to implement that. See: https://github.com/chronotope/chrono/issues/960
-    // ignoring.
     let formatted_date = now.format("%a %b %d %I:%M:%S %p %Z %Y").to_string();
 
     let contents = format!("# {} \n\n## Intentions \n\n## Logs \n\n", formatted_date);
