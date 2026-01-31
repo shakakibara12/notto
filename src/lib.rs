@@ -26,6 +26,12 @@ impl Note {
     }
 }
 
+impl Default for Note {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use std::env;
