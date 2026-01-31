@@ -13,7 +13,7 @@ fn exec_neovim(note_path: &str) {
     let editor = get_editor();
     Command::new(editor)
         .arg("--")
-        .arg(&note_path)
+        .arg(note_path)
         .status()
         .expect("failed to execute neovim.");
 }
@@ -53,7 +53,7 @@ fn default_template(note_path: &str) -> Result<(), io::Error> {
 
     let contents = format!("# {} \n\n## Intentions \n\n## Logs \n\n", formatted_date);
 
-    fs::write(&note_path, contents)?;
+    fs::write(note_path, contents)?;
 
     Ok(())
 }
