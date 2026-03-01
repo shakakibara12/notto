@@ -15,7 +15,7 @@ fn exec_neovim(note_path: &str) {
         .arg("--")
         .arg(note_path)
         .status()
-        .expect("failed to execute neovim.");
+        .expect("failed to execute editor: {editor}.");
 }
 
 fn help() -> String {
